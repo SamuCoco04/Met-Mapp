@@ -1,0 +1,69 @@
+# ============================================
+# ANDROID / KOTLIN PROJECT
+# ============================================
+
+# Gradle
+.gradle/
+build/
+*/build/
+!gradle/wrapper/gradle-wrapper.jar
+local.properties
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Kotlin
+*.kotlin_metadata
+*.kotlin_module
+*.class
+
+# ============================================
+# FIREBASE / SECRETS
+# ============================================
+
+# Firebase config file (MUY IMPORTANTE)
+google-services.json
+app/google-services.json
+
+# Apple Firebase file (por si compilas multiplataforma)
+GoogleService-Info.plist
+
+# Keys / Keystores (MUY IMPORTANTE)
+*.keystore
+*.jks
+*.pem
+
+# Archivos de configuración sensibles
+secret.properties
+keys.properties
+*.properties
+
+# ============================================
+# BUILD / RELEASE
+# ============================================
+
+*.apk
+*.ap_
+*.aab
+
+# NDK / CMake
+.externalNativeBuild/
+.cxx/
+
+# ============================================
+# LOGS / CACHE / TEMP
+# ============================================
+
+*.log
+.idea/caches/
+.idea/libraries/
+captures/
+tmp/
+

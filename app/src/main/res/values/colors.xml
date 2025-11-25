@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <!-- Fondo general (casi negro con toque verde) -->
+    <color name="dark_background">#05110A</color>
+
+    <!-- Tarjetas / superficies -->
+    <color name="dark_card">#10241A</color>
+
+    <!-- Verdes principales -->
+    <color name="primary_green">#1B5E20</color>
+    <color name="accent_green">#66BB6A</color>
+
+    <!-- Texto -->
+    <color name="primary_text">#FFFFFF</color>
+    <color name="secondary_text">#B0C7B6</color>
+
+    <!-- Navegación / barras -->
+    <color name="dark_on_primary">#FFFFFF</color>
+    <color name="dark_primary_variant">#0D3314</color>
+</resources>

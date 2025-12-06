@@ -19,37 +19,51 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Referencias UI
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
         tvGoToRegister = findViewById(R.id.tvGoToRegister)
 
-        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        // si quieres, puedes rellenar los campos con la cuenta por defecto:
+        // etEmail.setText("a@gmail.com")
+        // etPassword.setText("1234")
 
-        btnLogin.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
-
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Introduce email y contraseña", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val savedEmail = prefs.getString("email", null)
-            val savedPassword = prefs.getString("password", null)
-
-            if (email == savedEmail && password == savedPassword) {
-                Toast.makeText(this, "Inicio de sesión correcto", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()  // Cerramos el login para que no vuelva atrás
-            } else {
-                Toast.makeText(this, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
-            }
-        }
+        btnLogin.setOnClickListener { performLogin() }
 
         tvGoToRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
+
+    private fun performLogin() {
+        val email = etEmail.text.toString().trim()
+        val password = etPassword.text.toString()
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Introduce email y contraseña", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Cuenta por defecto
+        if (email == "a@gmail.com" && password == "1234") {
+            openMain()
+            return
+        }
+
+        val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+        val savedEmail = prefs.getString("user_email", null)
+        val savedPassword = prefs.getString("user_password", null)
+
+        if (email == savedEmail && password == savedPassword) {
+            openMain()
+        } else {
+            Toast.makeText(this, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun openMain() {
+        startActivity(Intent(this, MainActivity::class.java))
+        // Al cerrar la app se pierde la sesión (no guardamos flag de login)
+        finish()
     }
 }

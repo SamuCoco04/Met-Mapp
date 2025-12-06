@@ -4,191 +4,110 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
     android:background="@color/dark_background">
 
-    <!-- Cabecera -->
     <LinearLayout
-        android:id="@+id/headerRegister"
+        android:id="@+id/containerRegister"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:background="@color/dark_card"
+        android:padding="24dp"
+        android:layout_margin="24dp"
+        android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:id="@+id/ivLogoRegister"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_cloud"
-            android:tint="@color/primary_green"
-            android:contentDescription="@string/app_name" />
-
         <TextView
-            android:id="@+id/tvAppNameRegister"
+            android:id="@+id/tvRegisterTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Meteo"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary_text" />
-    </LinearLayout>
+            android:text="Crear cuenta"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
-    <!-- Tarjeta -->
-    <ScrollView
-        android:id="@+id/scrollRegister"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/headerRegister"
-        app:layout_constraintBottom_toTopOf="@id/tvGoToLogin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp">
+        <TextView
+            android:id="@+id/tvRegisterSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Regístrate para usar la app"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
 
-        <LinearLayout
+        <EditText
+            android:id="@+id/etName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:background="@drawable/bg_card_rounded">
+            android:layout_marginTop="24dp"
+            android:hint="Nombre"
+            android:inputType="textPersonName"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:background="@android:color/transparent"
+            android:padding="8dp" />
 
-            <TextView
-                android:id="@+id/tvTitleRegister"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Crear cuenta"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_text" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_dark" />
 
-            <TextView
-                android:id="@+id/tvSubtitleRegister"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Configura tu acceso a Meteo"
-                android:textSize="14sp"
-                android:textColor="@color/secondary_text" />
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:background="@android:color/transparent"
+            android:padding="8dp" />
 
-            <!-- Nombre -->
-            <TextView
-                android:id="@+id/tvLabelName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Nombre"
-                android:textSize="13sp"
-                android:textColor="@color/secondary_text" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_dark" />
 
-            <EditText
-                android:id="@+id/etName"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:hint="Tu nombre"
-                android:textColor="@color/primary_text"
-                android:textColorHint="@color/secondary_text"
-                android:background="@drawable/bg_input"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp" />
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Contraseña"
+            android:inputType="textPassword"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:background="@android:color/transparent"
+            android:padding="8dp" />
 
-            <!-- Email -->
-            <TextView
-                android:id="@+id/tvLabelEmailRegister"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Email"
-                android:textSize="13sp"
-                android:textColor="@color/secondary_text" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_dark" />
 
-            <EditText
-                android:id="@+id/etEmailRegister"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:hint="ejemplo@correo.com"
-                android:inputType="textEmailAddress"
-                android:textColor="@color/primary_text"
-                android:textColorHint="@color/secondary_text"
-                android:background="@drawable/bg_input"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp" />
+        <Button
+            android:id="@+id/btnCreateAccount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Crear cuenta"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_primary_button" />
 
-            <!-- Password -->
-            <TextView
-                android:id="@+id/tvLabelPassRegister"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Contraseña"
-                android:textSize="13sp"
-                android:textColor="@color/secondary_text" />
+        <TextView
+            android:id="@+id/tvGoToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="¿Ya tienes cuenta? Inicia sesión"
+            android:textColor="@color/accent_green"
+            android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/etPasswordRegister"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:hint="••••••••"
-                android:inputType="textPassword"
-                android:textColor="@color/primary_text"
-                android:textColorHint="@color/secondary_text"
-                android:background="@drawable/bg_input"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp" />
-
-            <!-- Confirmar password -->
-            <TextView
-                android:id="@+id/tvLabelPassConfirm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Repite contraseña"
-                android:textSize="13sp"
-                android:textColor="@color/secondary_text" />
-
-            <EditText
-                android:id="@+id/etPasswordConfirm"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:hint="••••••••"
-                android:inputType="textPassword"
-                android:textColor="@color/primary_text"
-                android:textColorHint="@color/secondary_text"
-                android:background="@drawable/bg_input"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp" />
-
-            <!-- Botón crear cuenta -->
-            <Button
-                android:id="@+id/btnCreateAccount"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="24dp"
-                android:text="Crear cuenta"
-                android:textAllCaps="false"
-                android:textColor="@color/dark_on_primary"
-                android:backgroundTint="@color/primary_green" />
-
-        </LinearLayout>
-    </ScrollView>
-
-    <!-- Enlace volver a login -->
-    <TextView
-        android:id="@+id/tvGoToLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="¿Ya tienes cuenta? Inicia sesión"
-        android:textColor="@color/secondary_text"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

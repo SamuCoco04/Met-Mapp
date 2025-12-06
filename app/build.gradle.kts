@@ -4,6 +4,12 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
+repositories {
+    google()
+    mavenCentral()
+    maven("https://jitpack.io")
+}
+
 android {
     namespace = "com.example.meteo"
     compileSdk {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
+    android:id="@+id/statistics_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient">
@@ -18,37 +18,40 @@
             android:gravity="center_horizontal">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="12dp">
 
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_cloud"
-                    android:contentDescription="Weather icon" />
-
-                <LinearLayout
+                <Button
+                    android:id="@+id/btnBack"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="Volver"
+                    android:textAllCaps="false"
+                    android:backgroundTint="@color/primary_blue"
+                    android:textColor="@color/white" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:layout_weight="1"
                     android:layout_marginStart="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="WeatherApp"
+                        android:text="Estadísticas de estación"
                         android:textColor="@color/white"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Monitorea tus estaciones en tiempo real"
+                        android:text="Historial reciente de Firestore"
                         android:textColor="@color/white"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -72,234 +75,30 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/tvTitle"
+                        android:id="@+id/tvStatusStats"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Estación Madrid Centro"
-                        android:textColor="@color/primary_text"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Madrid, España"
-                        android:textColor="@color/secondary_text"
-                        android:textSize="14sp"
-                        android:layout_marginTop="2dp" />
-
-                    <TextView
-                        android:id="@+id/tvStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Cargando últimos datos..."
+                        android:text="Cargando historial..."
                         android:textColor="@color/primary_blue"
-                        android:textSize="13sp"
-                        android:layout_marginTop="12dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnOpenStats"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Ver estadísticas y gráficas"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                app:cornerRadius="14dp"
-                app:icon="@drawable/ic_cloud"
-                app:iconGravity="textStart"
-                app:iconPadding="10dp"
-                app:iconTint="@color/white"
-                app:backgroundTint="@color/primary_blue"
-                android:textColor="@color/white" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@color/divider"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:divider="@drawable/divider_line"
-                    android:showDividers="middle"
-                    android:dividerPadding="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:src="@drawable/ic_temperature"
-                            android:contentDescription="Temperatura" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="12dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Temperatura"
-                                android:textColor="@color/secondary_text"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/tvTemperature"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="-- ºC"
-                                android:textColor="@color/primary_text"
-                                android:textSize="20sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Actual"
-                            android:textColor="@color/accent_orange"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:src="@drawable/ic_humidity"
-                            android:contentDescription="Humedad" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="12dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Humedad"
-                                android:textColor="@color/secondary_text"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/tvHumidity"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="-- %"
-                                android:textColor="@color/primary_text"
-                                android:textSize="20sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Ambiente"
-                            android:textColor="@color/primary_blue"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:src="@drawable/ic_cloud"
-                            android:contentDescription="Actualización" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="12dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Última actualización"
-                                android:textColor="@color/secondary_text"
-                                android:textSize="14sp" />
-
-                            <TextView
-                                android:id="@+id/tvTimestamp"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="--"
-                                android:textColor="@color/primary_text"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="En vivo"
-                            android:textColor="@color/accent_green"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@color/divider"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Resumen"
-                        android:textColor="@color/primary_text"
                         android:textStyle="bold"
-                        android:textSize="18sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Visualiza al instante los últimos valores que llegan desde tu estación FireStore."
+                        android:text="Último registro"
                         android:textColor="@color/secondary_text"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvLastTimestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="@color/primary_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -331,7 +130,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Resumen rápido de los últimos registros"
+                        android:text="Promedios, mínimos y máximos de las últimas 50 lecturas"
                         android:textColor="@color/secondary_text"
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
@@ -380,7 +179,7 @@
                                         android:textSize="13sp" />
 
                                     <TextView
-                                        android:id="@+id/tvTempAvg"
+                                        android:id="@+id/tvTempAvgStats"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="-- ºC"
@@ -403,7 +202,7 @@
                                         android:textSize="13sp" />
 
                                     <TextView
-                                        android:id="@+id/tvTempMin"
+                                        android:id="@+id/tvTempMinStats"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="-- ºC"
@@ -426,7 +225,7 @@
                                         android:textSize="13sp" />
 
                                     <TextView
-                                        android:id="@+id/tvTempMax"
+                                        android:id="@+id/tvTempMaxStats"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="-- ºC"
@@ -472,7 +271,7 @@
                                         android:textSize="13sp" />
 
                                     <TextView
-                                        android:id="@+id/tvHumidityAvg"
+                                        android:id="@+id/tvHumidityAvgStats"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="-- %"
@@ -495,7 +294,7 @@
                                         android:textSize="13sp" />
 
                                     <TextView
-                                        android:id="@+id/tvHumidityMin"
+                                        android:id="@+id/tvHumidityMinStats"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="-- %"
@@ -518,7 +317,7 @@
                                         android:textSize="13sp" />
 
                                     <TextView
-                                        android:id="@+id/tvHumidityMax"
+                                        android:id="@+id/tvHumidityMaxStats"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="-- %"
@@ -574,7 +373,7 @@
                             android:layout_marginBottom="8dp" />
 
                         <com.github.mikephil.charting.charts.LineChart
-                            android:id="@+id/tempChart"
+                            android:id="@+id/tempChartStats"
                             android:layout_width="match_parent"
                             android:layout_height="220dp"
                             android:background="@drawable/bg_card" />
@@ -595,7 +394,7 @@
                             android:layout_marginBottom="8dp" />
 
                         <com.github.mikephil.charting.charts.LineChart
-                            android:id="@+id/humidityChart"
+                            android:id="@+id/humidityChartStats"
                             android:layout_width="match_parent"
                             android:layout_height="220dp"
                             android:background="@drawable/bg_card" />

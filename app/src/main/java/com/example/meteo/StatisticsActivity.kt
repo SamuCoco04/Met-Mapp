@@ -1,6 +1,5 @@
 package com.example.meteo
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -21,92 +20,80 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class MainActivity : AppCompatActivity() {
+class StatisticsActivity : AppCompatActivity() {
 
-    private lateinit var tvTemperature: TextView
-    private lateinit var tvHumidity: TextView
-    private lateinit var tvTimestamp: TextView
-    private lateinit var tvStatus: TextView
     private lateinit var tvTempAvg: TextView
     private lateinit var tvTempMin: TextView
     private lateinit var tvTempMax: TextView
     private lateinit var tvHumidityAvg: TextView
     private lateinit var tvHumidityMin: TextView
     private lateinit var tvHumidityMax: TextView
+    private lateinit var tvLastTimestamp: TextView
+    private lateinit var statusText: TextView
     private lateinit var temperatureChart: LineChart
     private lateinit var humidityChart: LineChart
-    private lateinit var btnOpenStats: Button
+    private lateinit var backButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_statistics)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.statistics_root)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Referencias a las vistas
-        tvTemperature = findViewById(R.id.tvTemperature)
-        tvHumidity = findViewById(R.id.tvHumidity)
-        tvTimestamp = findViewById(R.id.tvTimestamp)
-        tvStatus = findViewById(R.id.tvStatus)
-        tvTempAvg = findViewById(R.id.tvTempAvg)
-        tvTempMin = findViewById(R.id.tvTempMin)
-        tvTempMax = findViewById(R.id.tvTempMax)
-        tvHumidityAvg = findViewById(R.id.tvHumidityAvg)
-        tvHumidityMin = findViewById(R.id.tvHumidityMin)
-        tvHumidityMax = findViewById(R.id.tvHumidityMax)
-        temperatureChart = findViewById(R.id.tempChart)
-        humidityChart = findViewById(R.id.humidityChart)
-        btnOpenStats = findViewById(R.id.btnOpenStats)
+        tvTempAvg = findViewById(R.id.tvTempAvgStats)
+        tvTempMin = findViewById(R.id.tvTempMinStats)
+        tvTempMax = findViewById(R.id.tvTempMaxStats)
+        tvHumidityAvg = findViewById(R.id.tvHumidityAvgStats)
+        tvHumidityMin = findViewById(R.id.tvHumidityMinStats)
+        tvHumidityMax = findViewById(R.id.tvHumidityMaxStats)
+        tvLastTimestamp = findViewById(R.id.tvLastTimestamp)
+        temperatureChart = findViewById(R.id.tempChartStats)
+        humidityChart = findViewById(R.id.humidityChartStats)
+        statusText = findViewById(R.id.tvStatusStats)
+        backButton = findViewById(R.id.btnBack)
 
-        tvStatus.text = "Cargando últimos datos..."
+        backButton.setOnClickListener { finish() }
 
-        btnOpenStats.setOnClickListener {
-            startActivity(Intent(this, StatisticsActivity::class.java))
-        }
+        statusText.text = "Cargando historial..."
+        fetchData()
+    }
 
+    private fun fetchData() {
         val db = FirebaseFirestore.getInstance()
-
         db.collection("STATION_01")
-            .orderBy("timestamp", Query.Direction.DESCENDING) // último dato
+            .orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(50)
             .get()
             .addOnSuccessListener { result ->
-                if (!result.isEmpty) {
-                    val readings = result.documents.map { document ->
-                        SensorReading(
-                            id = document.id,
-                            temperature = document.getDouble("temperatura"),
-                            humidity = document.getDouble("humidade"),
-                            timestamp = document.getLong("timestamp")
-                        )
-                    }
-
-                    val latest = readings.first()
-
-                    Log.d(
-                        "Firestore",
-                        "Último doc ${latest.id} -> temp=${latest.temperature} hum=${latest.humidity} ts=${latest.timestamp}"
-                    )
-
-                    tvTemperature.text = latest.temperature?.let { String.format(Locale.getDefault(), "%.1f ºC", it) } ?: "--"
-                    tvHumidity.text = latest.humidity?.let { String.format(Locale.getDefault(), "%.1f %%", it) } ?: "--"
-                    tvTimestamp.text = formatTimestamp(latest.timestamp)
-                    tvStatus.text = "Último documento: ${latest.id}"
-
-                    applyStatistics(readings)
-                    renderCharts(readings)
-                } else {
-                    tvStatus.text = "No se encontraron datos"
+                if (result.isEmpty) {
+                    statusText.text = "No se encontraron datos"
+                    return@addOnSuccessListener
                 }
+
+                val readings = result.documents.map { document ->
+                    SensorReading(
+                        id = document.id,
+                        temperature = document.getDouble("temperatura"),
+                        humidity = document.getDouble("humidade"),
+                        timestamp = document.getLong("timestamp")
+                    )
+                }
+
+                val lastTimestamp = readings.firstOrNull()?.timestamp
+                tvLastTimestamp.text = formatTimestamp(lastTimestamp)
+                statusText.text = "Historial actualizado: ${readings.size} registros"
+
+                applyStatistics(readings)
+                renderCharts(readings)
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "Erro ao ler dados", e)
-                tvStatus.text = "Error al cargar datos"
+                Log.e("Firestore", "Error al cargar historial", e)
+                statusText.text = "Error al cargar datos"
             }
     }
 

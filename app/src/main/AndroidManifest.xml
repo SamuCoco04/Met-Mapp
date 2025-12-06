@@ -12,6 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Meteo">
         <activity
+            android:name=".StatisticsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Meteo" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

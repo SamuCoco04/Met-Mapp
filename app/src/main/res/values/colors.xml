@@ -2,21 +2,20 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <!-- Fondo general (casi negro con toque verde) -->
-    <color name="dark_background">#05110A</color>
 
-    <!-- Tarjetas / superficies -->
-    <color name="dark_card">#10241A</color>
+    <!-- Backgrounds -->
+    <color name="gradient_start">#4A00E0</color>
+    <color name="gradient_end">#8E2DE2</color>
+    <color name="card_background">#FFFFFFFF</color>
 
-    <!-- Verdes principales -->
-    <color name="primary_green">#1B5E20</color>
-    <color name="accent_green">#66BB6A</color>
+    <!-- Primary palette -->
+    <color name="primary_blue">#3B82F6</color>
+    <color name="primary_text">#0F172A</color>
+    <color name="secondary_text">#4B5563</color>
+    <color name="divider">#E5E7EB</color>
 
-    <!-- Texto -->
-    <color name="primary_text">#FFFFFF</color>
-    <color name="secondary_text">#B0C7B6</color>
-
-    <!-- Navegación / barras -->
-    <color name="dark_on_primary">#FFFFFF</color>
-    <color name="dark_primary_variant">#0D3314</color>
+    <!-- Accents -->
+    <color name="accent_green">#22C55E</color>
+    <color name="accent_orange">#F97316</color>
+    <color name="accent_purple">#A855F7</color>
 </resources>

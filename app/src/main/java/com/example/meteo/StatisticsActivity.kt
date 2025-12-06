@@ -8,14 +8,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.meteo.data.MeteoRepository
+import com.example.meteo.data.SensorReading
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,6 +33,7 @@ class StatisticsActivity : AppCompatActivity() {
     private lateinit var temperatureChart: LineChart
     private lateinit var humidityChart: LineChart
     private lateinit var backButton: Button
+    private val repository = MeteoRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,24 +65,11 @@ class StatisticsActivity : AppCompatActivity() {
     }
 
     private fun fetchData() {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("STATION_01")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(50)
-            .get()
-            .addOnSuccessListener { result ->
-                if (result.isEmpty) {
+        repository.fetchRecentReadings(
+            onSuccess = { readings ->
+                if (readings.isEmpty()) {
                     statusText.text = "No se encontraron datos"
-                    return@addOnSuccessListener
-                }
-
-                val readings = result.documents.map { document ->
-                    SensorReading(
-                        id = document.id,
-                        temperature = document.getDouble("temperatura"),
-                        humidity = document.getDouble("humidade"),
-                        timestamp = document.getLong("timestamp")
-                    )
+                    return@fetchRecentReadings
                 }
 
                 val lastTimestamp = readings.firstOrNull()?.timestamp
@@ -90,11 +78,12 @@ class StatisticsActivity : AppCompatActivity() {
 
                 applyStatistics(readings)
                 renderCharts(readings)
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error al cargar historial", e)
+            },
+            onError = { error ->
+                Log.e("Firestore", "Error al cargar historial", error)
                 statusText.text = "Error al cargar datos"
             }
+        )
     }
 
     private fun formatTimestamp(timestamp: Long?): String {
@@ -177,11 +166,4 @@ class StatisticsActivity : AppCompatActivity() {
             invalidate()
         }
     }
-
-    private data class SensorReading(
-        val id: String,
-        val temperature: Double?,
-        val humidity: Double?,
-        val timestamp: Long?
-    )
 }

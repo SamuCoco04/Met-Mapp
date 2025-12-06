@@ -15,8 +15,8 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.example.meteo.data.MeteoRepository
+import com.example.meteo.data.SensorReading
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var temperatureChart: LineChart
     private lateinit var humidityChart: LineChart
     private lateinit var btnOpenStats: Button
+    private val repository = MeteoRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,23 +70,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, StatisticsActivity::class.java))
         }
 
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("STATION_01")
-            .orderBy("timestamp", Query.Direction.DESCENDING) // último dato
-            .limit(50)
-            .get()
-            .addOnSuccessListener { result ->
-                if (!result.isEmpty) {
-                    val readings = result.documents.map { document ->
-                        SensorReading(
-                            id = document.id,
-                            temperature = document.getDouble("temperatura"),
-                            humidity = document.getDouble("humidade"),
-                            timestamp = document.getLong("timestamp")
-                        )
-                    }
-
+        repository.fetchRecentReadings(
+            onSuccess = { readings ->
+                if (readings.isNotEmpty()) {
                     val latest = readings.first()
 
                     Log.d(
@@ -103,11 +90,12 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     tvStatus.text = "No se encontraron datos"
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Erro ao ler dados", e)
+            },
+            onError = { error ->
+                Log.e("Firestore", "Erro ao ler dados", error)
                 tvStatus.text = "Error al cargar datos"
             }
+        )
     }
 
     private fun formatTimestamp(timestamp: Long?): String {
@@ -191,10 +179,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private data class SensorReading(
-        val id: String,
-        val temperature: Double?,
-        val humidity: Double?,
-        val timestamp: Long?
-    )
 }

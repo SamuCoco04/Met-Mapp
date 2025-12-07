@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvTimestamp: TextView
     private lateinit var tvStatus: TextView
     private lateinit var btnStatistics: Button
+    private lateinit var btnCharts: Button
 
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     private val stationId = MeteoRepository.getDefaultStationId()
@@ -31,9 +32,14 @@ class MainActivity : AppCompatActivity() {
         tvTimestamp = findViewById(R.id.tvTimestamp)
         tvStatus = findViewById(R.id.tvStatus)
         btnStatistics = findViewById(R.id.btnStatistics)
+        btnCharts = findViewById(R.id.btnCharts)
 
         btnStatistics.setOnClickListener {
             startActivity(Intent(this, StatisticsActivity::class.java))
+        }
+
+        btnCharts.setOnClickListener {
+            startActivity(Intent(this, ChartsActivity::class.java))
         }
 
         loadLatestData()
@@ -83,8 +89,10 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        tvTemperature.text = String.format(Locale.getDefault(), "%.1f °C", latest.temperature)
-        tvHumidity.text = String.format(Locale.getDefault(), "%.1f %%", latest.humidity)
+        tvTemperature.text =
+            String.format(Locale.getDefault(), "%.1f °C", latest.temperature)
+        tvHumidity.text =
+            String.format(Locale.getDefault(), "%.1f %%", latest.humidity)
         tvTimestamp.text = dateFormatter.format(Date(latest.timestampMillis))
     }
 }

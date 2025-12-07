@@ -15,6 +15,10 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".RegisterActivity" />
         <activity
+            android:name=".ChartsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>

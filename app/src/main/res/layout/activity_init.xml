@@ -13,7 +13,7 @@
         android:id="@+id/logoImage"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/ic_launcher_foreground"
+        android:src="@drawable/weatherlogo"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,7 +25,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="MetMapp"
-        android:textColor="#00FF00"
         android:textStyle="bold"
         android:textSize="28sp"
         app:layout_constraintTop_toBottomOf="@+id/logoImage"
@@ -39,24 +38,22 @@
         android:layout_height="wrap_content"
         android:text="Login"
         android:textSize="18sp"
-        android:textColor="#00FF00"
-        android:backgroundTint="#222222"
         app:layout_constraintTop_toBottomOf="@+id/appNameText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_primary_button"/>
 
     <Button
         android:id="@+id/registerButton"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Crear cuenta"
+        android:text="Registrarse"
         android:textSize="16sp"
-        android:textColor="#00FF00"
-        android:backgroundTint="#222222"
         app:layout_constraintTop_toBottomOf="@+id/loginButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_primary_button"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

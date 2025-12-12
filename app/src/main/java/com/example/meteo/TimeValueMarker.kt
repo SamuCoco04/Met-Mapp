@@ -7,39 +7,44 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class TimeValueMarker(
     context: Context,
-    layoutResId: Int,
-    private val timestamps: List<Long>,
-    private val metric: ChartMetric,
-    private val fullFormatter: SimpleDateFormat
-) : MarkerView(context, layoutResId) {
+    layoutResource: Int
+) : MarkerView(context, layoutResource) {
 
-    private val tvContent: TextView = findViewById(R.id.tvMarkerContent)
+    private val tvMarkerValue: TextView = findViewById(R.id.tvMarkerValue)
+    private val tvMarkerTime: TextView = findViewById(R.id.tvMarkerTime)
+
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
 
     override fun refreshContent(e: Entry?, highlight: Highlight?) {
-        if (e == null) return
-
-        val index = e.x.toInt().coerceIn(0, timestamps.size - 1)
-        val date = Date(timestamps[index])
-        val dateStr = fullFormatter.format(date)
-
-        val valueStr = when (metric) {
-            ChartMetric.TEMPERATURE ->
-                String.format(Locale.getDefault(), "%.1f °C", e.y)
-            ChartMetric.HUMIDITY ->
-                String.format(Locale.getDefault(), "%.1f %%", e.y)
+        if (e == null) {
+            super.refreshContent(e, highlight)
+            return
         }
 
-        tvContent.text = "$valueStr\n$dateStr"
+        // Valor REAL: si lo hemos guardado en data lo usamos, si no, usamos e.y
+        val rawValue = (e.data as? Double) ?: e.y.toDouble()
+        val valueStr = String.format(Locale.getDefault(), "%.2f", rawValue)
+
+        val timeMillis = e.x.toLong()
+        val timeStr = dateFormat.format(Date(timeMillis))
+
+        // Etiqueta de la serie (Temperatura, Humedad, Partículas…)
+        val label = highlight?.dataSetIndex?.let { dsIndex ->
+            chartView?.data?.getDataSetByIndex(dsIndex)?.label
+        } ?: ""
+
+        tvMarkerValue.text = "$label: $valueStr"
+        tvMarkerTime.text = timeStr
+
         super.refreshContent(e, highlight)
     }
 
     override fun getOffset(): MPPointF {
-        // Centra el marcador sobre el punto y lo coloca algo por encima
+        // centramos el marker encima del punto
         return MPPointF(-(width / 2f), -height.toFloat())
     }
 }

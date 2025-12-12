@@ -1,118 +1,82 @@
 package com.example.meteo
 
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlin.math.sqrt
-
-data class MeteoMeasurement(
-    val temperature: Double,
-    val humidity: Double,
-    val timestampMillis: Long
-)
-
-data class StatsSummary(
-    val mean: Double?,
-    val median: Double?,
-    val mode: Double?,
-    val stdDev: Double?
-)
 
 object MeteoRepository {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    // Estación por defecto
-    private const val DEFAULT_STATION_ID = "STATION_00"
+    data class Measurement(
+        val temperature: Double,
+        val humidity: Double,
+        val particles: Double,
+        val timestampMillis: Long
+    )
 
-    // Caché para compartir datos entre pantallas
-    private val cache: MutableMap<String, List<MeteoMeasurement>> = mutableMapOf()
+    private val cache: MutableMap<String, List<Measurement>> = mutableMapOf()
 
-    fun getDefaultStationId(): String = DEFAULT_STATION_ID
-
-    /**
-     * Descarga todas las mediciones de una estación y las deja en caché.
-     * Es MUY tolerante: si falta timestamp, inventa uno basado en el índice.
-     */
-    fun refreshMeasurements(
-        stationId: String = DEFAULT_STATION_ID,
-        onSuccess: (List<MeteoMeasurement>) -> Unit,
+    // Lee la lista de estaciones desde metadados/collections.name
+    fun getStationIds(
+        onSuccess: (List<String>) -> Unit,
         onError: (Exception) -> Unit
     ) {
-        db.collection(stationId)
+        db.collection("metadados")
+            .document("collections")
             .get()
-            .addOnSuccessListener { snapshot ->
-
-                val measurements = snapshot.documents.mapIndexedNotNull { index, doc ->
-                    // Temperatura: buscamos distintos posibles nombres
-                    val temp = doc.getDouble("temperatura")
-                        ?: doc.getDouble("temperature")
-                        ?: doc.getDouble("temp")
-
-                    // Humedad: distintos posibles nombres
-                    val hum = doc.getDouble("humidade")
-                        ?: doc.getDouble("humedad")
-                        ?: doc.getDouble("humidade_relativa")
-                        ?: doc.getDouble("humidity")
-
-                    if (temp == null || hum == null) {
-                        // Si faltan, ignoramos este documento
-                        null
-                    } else {
-                        // Timestamp: probamos varios campos, y si no, inventamos uno
-                        val ts = doc.getLong("timestampMillis")
-                            ?: doc.getLong("timestamp")
-                            ?: doc.id.toLongOrNull()
-                            ?: index.toLong()  // al menos mantiene el orden
-
-                        MeteoMeasurement(
-                            temperature = temp,
-                            humidity = hum,
-                            timestampMillis = ts
-                        )
-                    }
+            .addOnSuccessListener { doc ->
+                val raw = doc.get("name")
+                val ids = when (raw) {
+                    is List<*> -> raw.filterIsInstance<String>()
+                    is Array<*> -> raw.filterIsInstance<String>()
+                    else -> emptyList()
                 }
-
-                cache[stationId] = measurements
-                onSuccess(measurements)
+                onSuccess(ids)
             }
             .addOnFailureListener { ex ->
                 onError(ex)
             }
     }
 
-    fun getCachedMeasurements(stationId: String = DEFAULT_STATION_ID): List<MeteoMeasurement>? =
-        cache[stationId]
+    // Actualiza lecturas de una estación
+    fun refreshMeasurements(
+        stationId: String,
+        onSuccess: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        db.collection(stationId)
+            .get()
+            .addOnSuccessListener { result ->
+                val list = result.documents.mapNotNull { d ->
+                    val temp = d.getDouble("temperatura")
+                    val hum =
+                        d.getDouble("humidade") ?: d.getDouble("humedad") ?: d.getDouble("humidade")
+                    val part =
+                        d.getDouble("particulas") ?: d.getDouble("partículas") ?: d.getDouble("particulas")
+                    val tsSeconds = d.getLong("timestamp") ?: d.id.toLongOrNull()
 
-    fun getLatestMeasurement(stationId: String = DEFAULT_STATION_ID): MeteoMeasurement? {
-        val list = cache[stationId]
-        if (list.isNullOrEmpty()) return null
-        // Como hemos preservado el orden de los documentos, el último es el más reciente
-        return list.maxByOrNull { it.timestampMillis }
+                    if (temp == null || hum == null || part == null || tsSeconds == null) {
+                        null
+                    } else {
+                        val tsMillis = tsSeconds * 1000L
+                        Measurement(
+                            temperature = temp,
+                            humidity = hum,
+                            particles = part,
+                            timestampMillis = tsMillis
+                        )
+                    }
+                }.sortedBy { it.timestampMillis }
+
+                cache[stationId] = list
+                onSuccess()
+            }
+            .addOnFailureListener { ex ->
+                onError(ex)
+            }
     }
 
-    fun computeStats(values: List<Double>): StatsSummary {
-        if (values.isEmpty()) return StatsSummary(null, null, null, null)
+    fun getCachedMeasurements(stationId: String): List<Measurement>? = cache[stationId]
 
-        val sorted = values.sorted()
-        val n = sorted.size
-
-        val mean = sorted.sum() / n
-
-        val median = if (n % 2 == 1) {
-            sorted[n / 2]
-        } else {
-            (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
-        }
-
-        val frequency = sorted.groupingBy { it }.eachCount()
-        val maxFreq = frequency.values.maxOrNull()
-        val mode = frequency.entries.firstOrNull { it.value == maxFreq }?.key
-
-        val variance = sorted.fold(0.0) { acc, value ->
-            val diff = value - mean
-            acc + diff * diff
-        } / n
-        val stdDev = sqrt(variance)
-
-        return StatsSummary(mean, median, mode, stdDev)
-    }
+    fun getLatestMeasurement(stationId: String): Measurement? =
+        cache[stationId]?.maxByOrNull { it.timestampMillis }
 }

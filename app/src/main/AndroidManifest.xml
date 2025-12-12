@@ -11,13 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Meteo">
-        <activity android:name=".StatisticsActivity" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".RegisterActivity" />
-        <activity
-            android:name=".ChartsActivity"
-            android:exported="false" />
-
+        <activity android:name=".StationActivity" />
+    <activity android:name=".RegisterActivity" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">

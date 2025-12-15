@@ -132,37 +132,51 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="4dp" />
 
-            <LinearLayout
+            <!-- CHECKBOXES (AJUSTADAS) -->
+            <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:columnCount="2"
+                android:rowCount="2"
+                android:layout_marginBottom="8dp"
+                android:useDefaultMargins="true"
+                android:alignmentMode="alignMargins">
 
                 <CheckBox
                     android:id="@+id/cbTemp"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
                     android:text="Temperatura"
                     android:textColor="#FFFFFF"
                     android:checked="true" />
 
                 <CheckBox
                     android:id="@+id/cbHumidity"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
                     android:text="Humedad"
                     android:textColor="#FFFFFF"
-                    android:layout_marginStart="12dp"
                     android:checked="true" />
 
                 <CheckBox
                     android:id="@+id/cbParticles"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
                     android:text="Partículas"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginStart="12dp" />
-            </LinearLayout>
+                    android:textColor="#FFFFFF" />
+
+                <CheckBox
+                    android:id="@+id/cbMovingAvg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:text="Media móvil"
+                    android:textColor="@android:color/white" />
+
+            </GridLayout>
 
             <TextView
                 android:id="@+id/tvChartEmpty"

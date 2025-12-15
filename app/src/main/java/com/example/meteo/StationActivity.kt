@@ -57,6 +57,9 @@ class StationActivity : AppCompatActivity() {
     private lateinit var lineChart: LineChart
     private lateinit var tvChartEmpty: TextView
 
+    private lateinit var cbMovingAvg: CheckBox
+
+
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     private var stationId: String = "STATION_00"
     private var currentMode: Mode = Mode.STATS
@@ -103,6 +106,9 @@ class StationActivity : AppCompatActivity() {
         cbPart = findViewById(R.id.cbParticles)
         lineChart = findViewById(R.id.lineChart)
         tvChartEmpty = findViewById(R.id.tvChartEmpty)
+
+        cbMovingAvg = findViewById(R.id.cbMovingAvg)
+
     }
 
     // --------------------------------------------------
@@ -208,6 +214,10 @@ class StationActivity : AppCompatActivity() {
         cbPart.setOnCheckedChangeListener { _, _ ->
             if (currentMode == Mode.CHARTS) updateChart()
         }
+        cbMovingAvg.setOnCheckedChangeListener { _, _ ->
+            if (currentMode == Mode.CHARTS) updateChart()
+        }
+
     }
 
     // --------------------------------------------------
@@ -377,6 +387,33 @@ class StationActivity : AppCompatActivity() {
         lineChart.marker = TimeValueMarker(this, R.layout.marker_time_value)
     }
 
+    private fun movingAverage(values: List<Double>, window: Int): List<Double> {
+        if (values.isEmpty()) return values
+        val w = window.coerceAtLeast(1)
+        if (w == 1) return values
+
+        val out = DoubleArray(values.size)
+        var sum = 0.0
+        val q: ArrayDeque<Double> = ArrayDeque()
+
+        for (i in values.indices) {
+            val v = values[i]
+            q.addLast(v)
+            sum += v
+            if (q.size > w) sum -= q.removeFirst()
+            out[i] = sum / q.size
+        }
+        return out.toList()
+    }
+
+    /** Ventana “inteligente”: para pocos puntos no suaviza casi nada, para muchos sí. */
+    private fun autoWindowSize(n: Int): Int {
+        if (n <= 6) return 1
+        // ~5% del tamaño, acotado
+        return (n / 20).coerceIn(3, 15)
+    }
+
+
     // --------------------------------------------------
     // Actualizar gráfica (z-score para correlación)
     // --------------------------------------------------
@@ -416,18 +453,24 @@ class StationActivity : AppCompatActivity() {
             var globalMax = Float.NEGATIVE_INFINITY
 
             selected.forEach { (label, extractor, color) ->
-                val values = measurements.map(extractor)
+                val rawValues = measurements.map(extractor)
+                val values = if (cbMovingAvg.isChecked) {
+                    val w = autoWindowSize(rawValues.size)
+                    movingAverage(rawValues, w)
+                } else rawValues
+
                 val mean = values.average()
                 val variance = values.map { (it - mean).pow(2) }.average()
                 val std = sqrt(variance).takeIf { it > 0 } ?: 1.0
 
-                val entries = measurements.map { m ->
-                    val real = extractor(m)
+                val entries = measurements.indices.map { i ->
+                    val real = values[i]                  // <- suavizado si cbMovingAvg
                     val z = ((real - mean) / std).toFloat()
                     if (z < globalMin) globalMin = z
                     if (z > globalMax) globalMax = z
-                    Entry(m.timestampMillis.toFloat(), z, real)
+                    Entry(measurements[i].timestampMillis.toFloat(), z, real) // data = real
                 }
+
 
                 val set = LineDataSet(entries, label).apply {
                     axisDependency = YAxis.AxisDependency.LEFT
@@ -449,16 +492,21 @@ class StationActivity : AppCompatActivity() {
             // UNA SERIE → valores reales
             val (label, extractor, color) = selected[0]
 
-            val values = measurements.map(extractor)
+            val rawValues = measurements.map(extractor)
+            val values = if (cbMovingAvg.isChecked) {
+                val w = autoWindowSize(rawValues.size)
+                movingAverage(rawValues, w)
+            } else rawValues
             val min = values.minOrNull() ?: 0.0
             val max = values.maxOrNull() ?: 0.0
             val range = (max - min).takeIf { it > 0 } ?: 1.0
             val padding = range * 0.1
 
-            val entries = measurements.map { m ->
-                val real = extractor(m)
-                Entry(m.timestampMillis.toFloat(), real.toFloat(), real)
+            val entries = measurements.indices.map { i ->
+                val real = values[i]
+                Entry(measurements[i].timestampMillis.toFloat(), real.toFloat(), real)
             }
+
 
             val set = LineDataSet(entries, label).apply {
                 axisDependency = YAxis.AxisDependency.LEFT

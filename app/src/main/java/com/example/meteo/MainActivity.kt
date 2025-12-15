@@ -1,98 +1,124 @@
 package com.example.meteo
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.view.ViewGroup
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var tvTemperature: TextView
-    private lateinit var tvHumidity: TextView
-    private lateinit var tvTimestamp: TextView
+    private lateinit var spinnerStations: Spinner
+    private lateinit var btnEnter: Button
     private lateinit var tvStatus: TextView
-    private lateinit var btnStatistics: Button
-    private lateinit var btnCharts: Button
 
-    private val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    private val stationId = MeteoRepository.getDefaultStationId()
+    private var stationIds: List<String> = emptyList()
+    private var selectedStationId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        tvTemperature = findViewById(R.id.tvTemperature)
-        tvHumidity = findViewById(R.id.tvHumidity)
-        tvTimestamp = findViewById(R.id.tvTimestamp)
-        tvStatus = findViewById(R.id.tvStatus)
-        btnStatistics = findViewById(R.id.btnStatistics)
-        btnCharts = findViewById(R.id.btnCharts)
+        spinnerStations = findViewById(R.id.spinnerStations)
+        btnEnter = findViewById(R.id.btnEnterStation)
+        tvStatus = findViewById(R.id.tvStatusMain)
 
-        btnStatistics.setOnClickListener {
-            startActivity(Intent(this, StatisticsActivity::class.java))
+        supportActionBar?.title = "Seleccionar estación"
+
+        tvStatus.text = "Cargando estaciones…"
+
+        btnEnter.setOnClickListener {
+            val stationId = selectedStationId
+            if (stationId.isNullOrEmpty()) {
+                Toast.makeText(this, "Selecciona una estación", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(this, StationActivity::class.java)
+                intent.putExtra(StationActivity.EXTRA_STATION_ID, stationId)
+                startActivity(intent)
+            }
         }
 
-        btnCharts.setOnClickListener {
-            startActivity(Intent(this, ChartsActivity::class.java))
-        }
-
-        loadLatestData()
+        loadStations()
     }
 
-    private fun loadLatestData() {
-        tvStatus.visibility = View.VISIBLE
-        tvStatus.text = "Cargando datos..."
-
-        val cached = MeteoRepository.getCachedMeasurements(stationId)
-        if (cached != null && cached.isNotEmpty()) {
-            updateCardWithLatest()
-        }
-
-        MeteoRepository.refreshMeasurements(
-            stationId,
-            onSuccess = {
-                if (!isFinishing && !isDestroyed) {
-                    runOnUiThread {
-                        tvStatus.visibility = View.GONE
-                        updateCardWithLatest()
+    private fun loadStations() {
+        MeteoRepository.getStationIds(
+            onSuccess = { ids ->
+                runOnUiThread {
+                    stationIds = ids
+                    if (ids.isEmpty()) {
+                        tvStatus.text = "No hay estaciones disponibles"
+                        setupSpinner(emptyList())
+                    } else {
+                        tvStatus.text = ""
+                        setupSpinner(ids)
                     }
                 }
             },
             onError = { ex ->
-                if (!isFinishing && !isDestroyed) {
-                    runOnUiThread {
-                        tvStatus.visibility = View.VISIBLE
-                        tvStatus.text = "Error al cargar datos"
-                        Toast.makeText(
-                            this,
-                            "Error al obtener datos: ${ex.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                runOnUiThread {
+                    tvStatus.text = "Error al cargar estaciones"
+                    Toast.makeText(
+                        this,
+                        "Error al obtener estaciones: ${ex.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    setupSpinner(emptyList())
                 }
             }
         )
     }
 
-    private fun updateCardWithLatest() {
-        val latest = MeteoRepository.getLatestMeasurement(stationId)
-        if (latest == null) {
-            tvTemperature.text = "-- °C"
-            tvHumidity.text = "-- %"
-            tvTimestamp.text = "--"
+    private fun setupSpinner(items: List<String>) {
+        if (items.isEmpty()) {
+            selectedStationId = null
+            spinnerStations.adapter = null
             return
         }
 
-        tvTemperature.text =
-            String.format(Locale.getDefault(), "%.1f °C", latest.temperature)
-        tvHumidity.text =
-            String.format(Locale.getDefault(), "%.1f %%", latest.humidity)
-        tvTimestamp.text = dateFormatter.format(Date(latest.timestampMillis))
+        val adapter = object : ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_spinner_item,
+            items
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val v = super.getView(position, convertView, parent) as TextView
+                v.setTextColor(Color.WHITE)
+                return v
+            }
+
+            override fun getDropDownView(
+                position: Int,
+                convertView: View?,
+                parent: ViewGroup
+            ): View {
+                val v = super.getDropDownView(position, convertView, parent) as TextView
+                v.setTextColor(Color.WHITE)
+                v.setBackgroundColor(Color.parseColor("#101818"))
+                return v
+            }
+        }
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerStations.adapter = adapter
+
+        spinnerStations.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                selectedStationId = items[position]
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                selectedStationId = null
+            }
+        }
+
+        spinnerStations.setSelection(0)
+        selectedStationId = items[0]
     }
 }

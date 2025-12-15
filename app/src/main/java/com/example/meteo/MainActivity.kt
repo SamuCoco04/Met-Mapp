@@ -1,4 +1,16 @@
 package com.example.meteo
+/*
+ * ------------------------------------------------------------
+ * Project: Met-Mapp
+ *
+ * Developers:
+ *   - Samuel Coco Delfa — nº Alumn: a22507106
+ *   - Carlos Galea Magro — nº Alumn: a22506794
+ *   - Javier Sánchez Gonzalo — nº Alumn: a22506948
+ *
+ * ------------------------------------------------------------
+ */
+
 
 import android.content.Intent
 import android.graphics.Color

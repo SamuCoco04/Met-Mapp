@@ -436,120 +436,88 @@ class StationActivity : AppCompatActivity() {
             return
         }
 
-        val selected = mutableListOf<Triple<String, (MeteoRepository.Measurement) -> Double, Int>>()
+        val selected =
+            mutableListOf<Triple<String, (MeteoRepository.Measurement) -> Double, Int>>()
 
-        if (cbTemp.isChecked) {
-            selected += Triple("Temperatura (°C)", { it.temperature }, Color.parseColor("#FFA726"))
-        }
-        if (cbHum.isChecked) {
-            selected += Triple("Humedad (%)", { it.humidity }, Color.parseColor("#42A5F5"))
-        }
-        if (cbPart.isChecked) {
+        if (cbTemp.isChecked)
+            selected += Triple("Temperatura", { it.temperature }, Color.parseColor("#FFA726"))
+        if (cbHum.isChecked)
+            selected += Triple("Humedad", { it.humidity }, Color.parseColor("#42A5F5"))
+        if (cbPart.isChecked)
             selected += Triple("Partículas", { it.particles }, Color.parseColor("#AB47BC"))
-        }
 
         if (selected.isEmpty()) {
             lineChart.clear()
             tvChartEmpty.visibility = View.VISIBLE
             return
-        } else {
-            tvChartEmpty.visibility = View.GONE
-        }
+        } else tvChartEmpty.visibility = View.GONE
 
         val dataSets = mutableListOf<ILineDataSet>()
 
+        // ================= MULTI-SERIE → NORMALIZADO 0..1 =================
         if (selected.size > 1) {
-            // VARIAS SERIES → normalizamos (z-score) para ver correlación
-            val axisLeft = lineChart.axisLeft
-            var globalMin = Float.POSITIVE_INFINITY
-            var globalMax = Float.NEGATIVE_INFINITY
+            lineChart.axisLeft.axisMinimum = 0f
+            lineChart.axisLeft.axisMaximum = 1f
 
             selected.forEach { (label, extractor, color) ->
-                val rawValues = measurements.map(extractor)
-                val values = if (cbMovingAvg.isChecked) {
-                    val w = autoWindowSize(rawValues.size)
-                    movingAverage(rawValues, w)
-                } else rawValues
 
-                val mean = values.average()
-                val variance = values.map { (it - mean).pow(2) }.average()
-                val std = sqrt(variance).takeIf { it > 0 } ?: 1.0
+                val raw = measurements.map(extractor)
+                val values = if (cbMovingAvg.isChecked)
+                    movingAverage(raw, autoWindowSize(raw.size))
+                else raw
 
-                val entries = measurements.indices.map { i ->
-                    val real = values[i]                  // <- suavizado si cbMovingAvg
-                    val z = ((real - mean) / std).toFloat()
-                    if (z < globalMin) globalMin = z
-                    if (z > globalMax) globalMax = z
-                    Entry(measurements[i].timestampMillis.toFloat(), z, real) // data = real
+                val normDivisor = when (label) {
+                    "Temperatura" -> 50.0
+                    "Humedad" -> 100.0
+                    else -> 100.0
                 }
 
+                val entries = measurements.indices.map { i ->
+                    val real = values[i]
+                    val norm = (real / normDivisor).coerceIn(0.0, 1.0)
+                    Entry(measurements[i].timestampMillis.toFloat(), norm.toFloat(), real)
+                }
 
-                val set = LineDataSet(entries, label).apply {
-                    axisDependency = YAxis.AxisDependency.LEFT
+                dataSets += LineDataSet(entries, label).apply {
                     this.color = color
                     lineWidth = 2f
                     setDrawCircles(false)
                     setDrawValues(false)
-                    setDrawHighlightIndicators(true)
-                    highLightColor = color
                 }
-                dataSets += set
             }
-
-            val padding = 0.5f
-            axisLeft.axisMinimum = globalMin - padding
-            axisLeft.axisMaximum = globalMax + padding
-
-        } else {
-            // UNA SERIE → valores reales
+        }
+        // ================= UNA SOLA SERIE → REAL =================
+        else {
             val (label, extractor, color) = selected[0]
+            val raw = measurements.map(extractor)
+            val values = if (cbMovingAvg.isChecked)
+                movingAverage(raw, autoWindowSize(raw.size))
+            else raw
 
-            val rawValues = measurements.map(extractor)
-            val values = if (cbMovingAvg.isChecked) {
-                val w = autoWindowSize(rawValues.size)
-                movingAverage(rawValues, w)
-            } else rawValues
             val min = values.minOrNull() ?: 0.0
-            val max = values.maxOrNull() ?: 0.0
-            val range = (max - min).takeIf { it > 0 } ?: 1.0
-            val padding = range * 0.1
+            val max = values.maxOrNull() ?: 1.0
+            val padding = (max - min) * 0.1
+
+            lineChart.axisLeft.axisMinimum = (min - padding).toFloat()
+            lineChart.axisLeft.axisMaximum = (max + padding).toFloat()
 
             val entries = measurements.indices.map { i ->
-                val real = values[i]
-                Entry(measurements[i].timestampMillis.toFloat(), real.toFloat(), real)
+                Entry(
+                    measurements[i].timestampMillis.toFloat(),
+                    values[i].toFloat(),
+                    values[i]
+                )
             }
 
-
-            val set = LineDataSet(entries, label).apply {
-                axisDependency = YAxis.AxisDependency.LEFT
+            dataSets += LineDataSet(entries, label).apply {
                 this.color = color
                 lineWidth = 2f
                 setDrawCircles(false)
                 setDrawValues(false)
-                setDrawHighlightIndicators(true)
-                highLightColor = color
             }
-            dataSets += set
-
-            val axisLeft = lineChart.axisLeft
-            axisLeft.axisMinimum = (min - padding).toFloat()
-            axisLeft.axisMaximum = (max + padding).toFloat()
         }
 
         lineChart.data = LineData(dataSets)
-
-        // ----- Ventana visible y scroll horizontal -----
-        val minX = measurements.minOf { it.timestampMillis }.toFloat()
-        val maxX = measurements.maxOf { it.timestampMillis }.toFloat()
-        val totalRange = maxX - minX
-
-        if (totalRange > 0f) {
-            // mostramos aprox. el último tercio y se puede deslizar
-            val visibleRange = totalRange / 3f
-            lineChart.setVisibleXRangeMaximum(visibleRange)
-            lineChart.moveViewToX(maxX)
-        }
-
         lineChart.invalidate()
     }
 }
